@@ -12,7 +12,8 @@ public class CSVRead {
                 // we read one line
                 String row = scanner.nextLine();
                 String[] parts = row.split(",");
-                System.out.println("Name: " + parts[0] + ", Age: " + parts[1] + ", ID: " + parts[2] + ", Email: " + parts[3] + ", Major: " + parts[4] + ", GPA: " + parts[5]);
+                System.out.println("Name: " + parts[0] + ", Age: " + parts[1] + ", ID: " + parts[2] + ", Email: "
+                        + parts[3] + ", Major: " + parts[4] + ", GPA: " + parts[5]);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

@@ -1,6 +1,9 @@
-package rvt;
+package regsys;
 
 import java.util.Scanner;
+
+import rvt.Student;
+
 import java.util.List;
 
 public class MainStudentReg {

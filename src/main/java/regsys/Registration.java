@@ -1,7 +1,10 @@
-package rvt;
+package regsys;
 
 import java.util.List;
 import java.util.Scanner;
+
+import rvt.FileHandler;
+import rvt.Student;
 
 public class Registration {
     private List<Student> students;

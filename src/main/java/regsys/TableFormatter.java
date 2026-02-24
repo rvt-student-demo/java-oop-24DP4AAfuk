@@ -1,6 +1,8 @@
-package rvt;
+package regsys;
 
 import java.util.List;
+
+import rvt.Student;
 
 public class TableFormatter {
     public static void printStudents(List<Student> students) {

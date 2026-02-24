@@ -1,4 +1,4 @@
-package rvt;
+package regsys;
 
 public class Validator {
     public static boolean validName(String s) {

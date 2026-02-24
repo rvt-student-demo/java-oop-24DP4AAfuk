@@ -24,7 +24,13 @@ public class FileHandler {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 5) {
-                    Student student = new Student(parts[0], parts[1], parts[2], parts[3], parts[4]);
+                    // skip header row if present
+                    if (parts[0].trim().equalsIgnoreCase("name") &&
+                            parts[1].trim().equalsIgnoreCase("surname") &&
+                            parts[2].trim().equalsIgnoreCase("email")) {
+                        continue;
+                    }
+                    Student student = new Student(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim());
                     students.add(student);
                 }
             }

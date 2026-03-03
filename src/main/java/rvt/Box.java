@@ -1,6 +1,6 @@
 package rvt;
 
-public class Box {
+public class Box implements Packable {
     private double maxWeight;
     private java.util.List<Packable> contents = new java.util.ArrayList<>();
 

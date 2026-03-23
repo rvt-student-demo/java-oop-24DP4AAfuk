@@ -2,6 +2,7 @@ package rvt.shop;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Warehouse {
     private Map<String, Integer> prices;
@@ -33,6 +34,10 @@ public class Warehouse {
         return false;
     }
 
+    public Set<String> products() {
+        return this.prices.keySet();
+    }
+
     public static void main(String[] args) {
         Warehouse warehouse = new Warehouse();
         warehouse.addProduct("Coffee", 5, 10);
@@ -42,5 +47,6 @@ public class Warehouse {
         System.out.println("Stock of Tea: " + warehouse.stock("Tea"));
         System.out.println("Taking Coffee: " + warehouse.take("Coffee"));
         System.out.println("Stock of Coffee after taking: " + warehouse.stock("Coffee"));
+        System.out.println("Products in warehouse: " + warehouse.products());
     }
 }

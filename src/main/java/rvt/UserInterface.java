@@ -3,10 +3,10 @@ package rvt;
 import java.util.Scanner;
 
 public class UserInterface {
-    private TodoList list;
-    private Scanner scanner;
+    private final TodoStore list;
+    private final Scanner scanner;
 
-    public UserInterface(TodoList list, Scanner scanner) {
+    public UserInterface(TodoStore list, Scanner scanner) {
         this.list = list;
         this.scanner = scanner;
     }

@@ -8,7 +8,7 @@ import java.io.File;
 import java.nio.file.*;
 import java.util.stream.Stream;
 
-public class TodoList {
+public class TodoList implements TodoStore {
     private ArrayList<String> tasks;
     private final String filePath = "data/todo.csv";
 
@@ -44,25 +44,30 @@ public class TodoList {
         }
     }
 
+    @Override
     public void add(String task) {
         this.tasks.add(task);
         saveToFile();
     }
 
+    @Override
     public int size() {
         return this.tasks.size();
     }
 
+    @Override
     public String get(int index) {
         return this.tasks.get(index);
     }
 
+    @Override
     public void print() {
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println((i + 1) + ". " + tasks.get(i));
         }
     }
 
+    @Override
     public void remove(int i) {
         if (i >= 0 && i < tasks.size()) {
             tasks.remove(i);

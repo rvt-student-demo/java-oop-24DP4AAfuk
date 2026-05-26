@@ -3,8 +3,8 @@ import java.util.Scanner;
 
 public class App {
     public static void main(String[] args) {
-        TodoDB todoDB = new TodoDB();
-        UserInterface ui = new UserInterface(todoDB, new Scanner(System.in));
+        TodoList todoList = new TodoList();
+        UserInterface ui = new UserInterface(todoList, new Scanner(System.in));
         ui.start();
     }
 }

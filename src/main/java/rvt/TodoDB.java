@@ -1,27 +1,23 @@
 package rvt;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.*;
 
-public class TodoDB implements TodoStore {
-    private final String dbUrl;
+public class TodoDB extends TodoList {
+    private static final String DB_URL = "jdbc:sqlite:todo.db";
 
-    public TodoDB(){
-        this("todo.db");
-    }
-
-    public TodoDB(String dbPath) {
-        if (dbPath.startsWith("jdbc:sqlite:")) {
-            this.dbUrl = dbPath;
-        } else {
-            this.dbUrl = "jdbc:sqlite:" + dbPath;
-        }
+    public TodoDB() {
         initSchema();
     }
 
     private Connection connect() throws SQLException {
-        return DriverManager.getConnection(dbUrl);
+        return DriverManager.getConnection(DB_URL);
     }
 
     private void initSchema() {
@@ -30,10 +26,7 @@ public class TodoDB implements TodoStore {
                 + "task TEXT NOT NULL"
                 + ")";
 
-        try (
-            Connection conn = connect();
-            Statement stmt = conn.createStatement()
-        ) {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
             throw new RuntimeException("Schema init failed", e);
@@ -48,8 +41,7 @@ public class TodoDB implements TodoStore {
     public void addTask(String task) {
         String sql = "INSERT INTO todo(task) VALUES (?)";
 
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, task);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -59,9 +51,16 @@ public class TodoDB implements TodoStore {
 
     public List<String> findAllTasks() {
         List<String> tasks = new ArrayList<>();
-        for (TaskRow row : loadTasks()) {
-            tasks.add(row.task());
+        String sql = "SELECT task FROM todo ORDER BY id";
+
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                tasks.add(rs.getString("task"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load tasks", e);
         }
+
         return tasks;
     }
 
@@ -69,9 +68,7 @@ public class TodoDB implements TodoStore {
     public int size() {
         String sql = "SELECT COUNT(*) FROM todo";
 
-        try (Connection conn = connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to count tasks", e);
@@ -80,35 +77,29 @@ public class TodoDB implements TodoStore {
 
     @Override
     public String get(int index) {
-        List<TaskRow> tasks = loadTasks();
-        if (index < 0 || index >= tasks.size()) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + tasks.size());
-        }
-        return tasks.get(index).task();
+        return findAllTasks().get(index);
     }
 
     @Override
     public void print() {
-        List<TaskRow> tasks = loadTasks();
+        List<String> tasks = findAllTasks();
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i).task());
+            System.out.println((i + 1) + ". " + tasks.get(i));
         }
     }
 
     @Override
-    public void remove(int index) {
-        List<TaskRow> tasks = loadTasks();
-        if (index < 0 || index >= tasks.size()) {
-            return;
+    public void remove(int i) {
+        List<TaskRow> tasks = loadTaskRows();
+        if (i >= 0 && i < tasks.size()) {
+            removeById(tasks.get(i).id());
         }
-        removeById(tasks.get(index).id());
     }
 
     public void removeById(int id) {
         String sql = "DELETE FROM todo WHERE id = ?";
 
-        try (Connection conn = connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -116,13 +107,11 @@ public class TodoDB implements TodoStore {
         }
     }
 
-    private List<TaskRow> loadTasks() {
+    private List<TaskRow> loadTaskRows() {
         List<TaskRow> tasks = new ArrayList<>();
         String sql = "SELECT id, task FROM todo ORDER BY id";
 
-        try (Connection conn = connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 tasks.add(new TaskRow(rs.getInt("id"), rs.getString("task")));
             }
@@ -131,6 +120,12 @@ public class TodoDB implements TodoStore {
         }
 
         return tasks;
+    }
+
+    public static void main(String[] args) {
+        TodoDB list = new TodoDB();
+        UserInterface ui = new UserInterface(list, new java.util.Scanner(System.in));
+        ui.start();
     }
 
     private record TaskRow(int id, String task) {
